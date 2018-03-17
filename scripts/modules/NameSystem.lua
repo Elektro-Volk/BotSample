@@ -1,70 +1,56 @@
-local M = {}
+--[[
+	Autor: https://vk.com/elektro_volkts
+	Version: 1.0
+	Functions:
+		NameSystem.IsMe(msg) - Check is MSG have bot name
+		NameSystem.Clear(msg) - Remove bot name and symbols pre message
+		NameSystem.Apply(msg, other, rmsg) - Print Nickname on message
+	OOP:
+		user:setName(newname) - Set user nickname
+		user:getName() - Get user nickname
+		user:r() - URL on user nickname
+]]--
+local _mod = {}
 
-function M.Start()
-	if DbData then
-		DbData.RegFunc('setName', function (data, nick)
-			 data[M.dbfield] = nick;
-			 DbData.Set(data.vkid, 'nickname', nick);
-		end);
-		
-		DbData.RegFunc('getName', function (data)
-			local name = data[M.dbfield]
-			if name == '' then
-				local user = vk.jSend('users.get', { user_ids = tostring(data.vkid), fields = 'photo_50' })["response"][1];
-				name = user.first_name;
-				DbData.mc(
-					"UPDATE `%s` SET first_name='%s',nickname='%s',last_name='%s',photo_url='%s' WHERE vkid='%i'",
-					DbData.tablename, name, name, user.last_name, user.photo_50, data.vkid
-				);
-			end
-			return name;
-		end);
-	end
+function _mod.Start()
+	DbData.RegFunc('setName', function (self, name) self:set('nickname', name) end);
+	DbData.RegFunc('getName', function (self) return self.nickname ~= '' and self.nickname or _mod.SetupName(self) end);
+	DbData.RegFunc('r', function (self) return "[id"..self.vkid.."|"..self:getName().."]" end);
 end
 
-function M.IsMe (msg)
-	local body = msg[6];
-	for i = 1, #M.botNames, 1 do
-		if string.starts(string.lower(body), M.botNames[i]) then
-			M.sub = 1 + string.len(M.botNames[i]);
+function _mod.IsMe (msg)
+	local body = string.lower(msg[6]);
+	for i = 1, #_mod.botNames, 1 do
+		if body:starts(_mod.botNames[i]) then
+			_mod.sub = _mod.botNames[i]:len() + 1;
 			return true;
 		end
 	end
-	if msg[4] < 2000000000 then M.sub = 1; return true end
+	if msg[4] < 2000000000 then _mod.sub = 1; return true end
 	return false;
 end
 
--- Clear spaces and symbols
-function M.Clear(msg)
-	local text = string.sub(msg.body or '', M.sub); -- Clear name
-	-- Clear symbols
-	while string.starts(text, " ") or string.starts(text, ",") do
-		text = string.sub(text, 2);
-	end
+function _mod.Clear(msg)
+	local text = string.sub(msg.body or '', _mod.sub);
+	while text:starts ' ' or text:starts ',' do text = string.sub(text, 2) end
 	msg.body = text;
 	return msg;
 end
 
--- Get Name
-function M.Get(uid)
-  return DbData(uid):getName();
+function _mod.SetupName(user)
+	local userdata = VK.users.get { user_ids = user.vkid }["response"][1];
+	user:set('first_name', userdata.first_name);
+	user:set('last_name', userdata.last_name);
+	user:set('nickname', userdata.first_name);
+	return userdata.first_name;
 end
 
-function M.GetR(uid)
-	return "[id"..uid.."|"..M.Get(uid).."]";
+function _mod.GetR(userid)
+	return DbData(userid):r();
 end
 
--- Set Name
-function M.Set(uid, nick)
-	M.names [tostring(uid)] = tostring( nick);
-	M.Save();
+function _mod.Apply(msg, other, rmsg)
+	if msg.chat_id and other.sendname then rmsg.message = other.udata:getName()..", "..rmsg.message end
 end
 
--- Apply to message
-function M.Apply(msg, other, rmsg)
-	if msg.chat_id and other.sendname then
-		rmsg.message = (other.udata and other.udata:getName() or M.Get(msg.user_id))..", "..rmsg.message;
-	end
-end
-
-return M
+return _mod;
