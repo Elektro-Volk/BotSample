@@ -2,7 +2,7 @@
 1) Setup config.cfg
 2) Setup main.lua (Bot names and mysql server)
 3) Create accounts table:
-CREATE TABLE `accountes` (
+CREATE TABLE `accounts` (
 `id` int(11) NOT NULL,
 `vkid` int(11) NOT NULL,
 `first_name` text NOT NULL,
@@ -12,8 +12,8 @@ CREATE TABLE `accountes` (
 `right` text NOT NULL,
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-ALTER TABLE `accountes` 
+ALTER TABLE `accounts` 
 ADD PRIMARY KEY (`id`);
 
-ALTER TABLE `accountes`
+ALTER TABLE `accounts`
 MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
