@@ -17,3 +17,18 @@ ADD PRIMARY KEY (`id`);
 
 ALTER TABLE `accounts`
 MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+# How to start EBP in group
+1) Enable longpoll in group settings
+2) Enable new message event
+3) Get group token for full rules
+3) Add to config.cfg
+vk_group 1
+vk_groupid groupid
+vk_token grouptoken
+
+# How to start only bot in group and user page
+1) Create folder "group"
+2) Create links in "group" from bot/scripts and bot/settings
+3) Setup group config.cfg to group settings
+4) Start ./EBP and ./EBP group
