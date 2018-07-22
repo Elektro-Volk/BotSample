@@ -1,2 +1,1 @@
-DbData.Connect{ ip = 'myip', username = 'myusername', password = 'mypassword', database = 'mydbname' };
---AntiCaptcha.key = 'mykey'; -- Ключ для Rucaptcha
+DbData.Connect{ ip = 'myip', username = 'user', password = 'pass', database = 'dbname' };

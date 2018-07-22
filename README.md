@@ -1,34 +1,39 @@
 # BotSample
-1) Setup config.cfg
-2) Setup main.lua (Bot names and mysql server)
-3) Create accounts table:
-CREATE TABLE `accounts` (
-`id` int(11) NOT NULL,
-`vkid` int(11) NOT NULL,
-`first_name` text NOT NULL,
-`last_name` text NOT NULL,
-`nickname` text NOT NULL,
-`ban` int(11) NOT NULL,
-`right` text NOT NULL,
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+## Установка
+1) Настройте config.cfg
+2) Укажите имена бота в main.lua
+3) Укажите MySql сервер в tokens.lua
 
-ALTER TABLE `accounts` 
-ADD PRIMARY KEY (`id`);
+## Что он умеет
+Бот имеет 21 команд, разделенные на категории.
 
-ALTER TABLE `accounts`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+### Игровые команды
+1) кф - игра в коинфлип
+2) лотерея - игра в лотерею с шансом 50%
 
-# How to start EBP in group
-1) Enable longpoll in group settings
-2) Enable new message event
-3) Get group token for full rules
-3) Add to config.cfg
-vk_group 1
-vk_groupid groupid
-vk_token grouptoken
+### Информационные команды
+1) админлист - список тех. персонала.
+2) помощь - список команд бота
+3) информация - краткая инфа о боте
+4) тест - быстрая проверка бота
+5) топ - топ юзеров по балансу
 
-# How to start only bot in group and user page
-1) Create folder "group"
-2) Create links in "group" from bot/scripts and bot/settings
-3) Setup group config.cfg to group settings
-4) Start ./EBP and ./EBP group
+### Команды профиля
+1) баланс - показать ваш баланс
+2) ник - изменить ваш ник
+3) профиль - показать ваш профиль
+4) отправить - отправить деньги
+
+### Утилиты
+1) бан - забанить пользователя
+2) do - выполнить Lua код
+3) ид - ид юзера ВК
+4) матген - генератор мат. выражений
+5) разбан - разбанить пользователя
+6) relua - перезагрузить скрипты
+7) сетник - установить никнейм другому юзеру
+8) сетправо - установить право другому юзеру
+9) vk - выполнить VK метод
+
+### Прочие команды
+1) принять - принять запрос

@@ -1,48 +1,49 @@
--- VERSION 1.0
-local M = {}
+return {
+	CheckInstall = function ()
+		if not DbData then
+			console.error("RightsSystem", "Для работы данного модуля нужно установить DbData.lua.");
+			return;
+		end
 
-function M.Start()
-	DbData.RegFunc('isRight', function (data, right) return M.IsRightInType(data["right"], right) end);
-	DbData.RegFunc('getValue', function (data, value) return M.RightValueInType(data["right"], value) end);
-	DbData.RegFunc('getRightName', function (data) return M.GetType(data["right"]).screenname end);
-	DbData.RegFunc('getRight', function (data) return M.GetType(data["right"]) end);
-	M.Reload();
-	CommandsSystem.RegPre(M.CheckCmd);
-end
+		DbData.FindColumnOrInstall(DbData.acctable, 'right', 'RightsSystem', 'TEXT NOT NULL');
+	end,
 
-function M.CheckCmd(msg, args, other, comObj, user)
-	return comObj.right and not user:isRight (comObj.right) and { message = comObj.rerror or 'У вас нет прав.' };
-end
+	Start = function ()
+		DbData.RegFunc('isRight', function (data, right) return RightsSystem.IsRightInType(data["right"], right) end);
+		DbData.RegFunc('getValue', function (data, value) return RightsSystem.RightValueInType(data["right"], value) end);
+		DbData.RegFunc('getRightName', function (data) return RightsSystem.GetType(data["right"]).screenname end);
+		DbData.RegFunc('getRight', function (data) return RightsSystem.GetType(data["right"]) end);
+		RightsSystem.rights = dofile(root .. '/settings/rights.lua');
+		Commands.RegPre(RightsSystem.CheckCmd);
+	end,
 
-function M.Reload()
-	M.rights = jDecode(fs.read 'settings/rights.json');
-end
---M.Reload();
+	CheckCmd = function (msg, args, other, comObj, user)
+		return comObj.right and not user:isRight (comObj.right) and { message = comObj.rerror or 'У вас нет прав.' };
+	end,
 
--- Получить тип по имени --
-function M.GetType(typeName)
-	return M.rights[typeName == '' and 'default' or typeName];
-end
+	-- Получить тип по имени --
+	GetType = function (typeName)
+		return RightsSystem.rights[typeName == '' and 'default' or typeName];
+	end,
 
--- Проверка права типа --
-function M.IsRightInType(typename, right)
-	local tinfo = M.GetType(typename);
-	return tinfo["right"] or tinfo["right."..right]
-	or (tinfo["include"] and M.IsRightInType(tinfo["include"], right))
-	or false;
-end
+	-- Проверка права типа --
+	IsRightInType = function (typename, right)
+		local tinfo = RightsSystem.GetType(typename);
+		return tinfo["right"] or tinfo["right."..right]
+		or (tinfo["include"] and RightsSystem.IsRightInType(tinfo["include"], right))
+		or false;
+	end,
 
--- Проверка значения --
-function M.RightValue(userId, valname)
-	return M.RightValueInType(DbData(userId)["right"], right);
-end
+	-- Проверка значения --
+	RightValue = function (userId, valname)
+		return RightsSystem.RightValueInType(DbData(userId)["right"], right);
+	end,
 
--- Проверка значения типа --
-function M.RightValueInType(typename, valname)
-	local tinfo = M.GetType(typename);
+	-- Проверка значения типа --
+	RightValueInType = function (typename, valname)
+		local tinfo = RightsSystem.GetType(typename);
 
-	return tinfo["value."..valname]
-	or (tinfo["include"] and M.RightValueInType(tinfo["include"], valname));
-end
-
-return M;
+		return tinfo["value."..valname]
+		or (tinfo["include"] and RightsSystem.RightValueInType(tinfo["include"], valname));
+	end
+};

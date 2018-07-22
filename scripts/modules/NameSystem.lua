@@ -10,48 +10,57 @@
 		user:getName() - Get user nickname
 		user:r() - URL on user nickname
 ]]--
-local _mod = {}
-
-function _mod.Start()
-	DbData.RegFunc('setName', function (self, name) self:set('nickname', name) end);
-	DbData.RegFunc('getName', function (self) return self.nickname ~= '' and self.nickname or _mod.SetupName(self) end);
-	DbData.RegFunc('r', function (self) return "[id"..self.vkid.."|"..self:getName().."]" end);
-end
-
-function _mod.IsMe (msg)
-	local body = string.lower(msg.body);
-	for i = 1, #_mod.botNames, 1 do
-		if body:starts(_mod.botNames[i]) then
-			NameSystem.Clear(msg, _mod.botNames[i]:len() + 1);
-			return true;
+return {
+	CheckInstall = function ()
+		if not DbData then
+			console.error("NameSystem", "Для работы данного модуля нужно установить DbData.lua.");
+			return;
 		end
+
+		DbData.FindColumnOrInstall(DbData.acctable, 'first_name', 'NameSystem', 'TEXT NOT NULL');
+		DbData.FindColumnOrInstall(DbData.acctable, 'last_name', 'NameSystem', 'TEXT NOT NULL');
+		DbData.FindColumnOrInstall(DbData.acctable, 'nickname', 'NameSystem', 'TEXT NOT NULL');
+	end,
+
+	Start = function ()
+		DbData.RegFunc('setName', function (self, name) self:set('nickname', name) end);
+		DbData.RegFunc('getName', function (self) return self.nickname ~= '' and self.nickname or NameSystem.SetupName(self) end);
+		DbData.RegFunc('r', function (self) return "[id"..self.vkid.."|"..self:getName().."]" end);
+
+		Bot.addCheck(NameSystem.IsMe);
+		Bot.addPost(NameSystem.Post);
+	end,
+
+	IsMe = function (msg)
+		local body = string.lower(msg.text or '');
+		for i = 1, #NameSystem.botNames, 1 do
+			if body:starts(NameSystem.botNames[i]) then
+				msg.text = string.sub(msg.text or '', #NameSystem.botNames[i] + 1);
+				NameSystem.Clear(msg);
+				return true
+		 	end
+		end
+		if not ischat(msg) then NameSystem.Clear(msg) return true end
+		return false;
+	end,
+
+	Clear = function (msg)
+		while msg.text:starts ' ' or msg.text:starts ',' do msg.text = string.sub(msg.text, 2) end
+	end,
+
+	SetupName = function (user)
+		local userdata = VK.users.get { user_ids = user.vkid }["response"][1];
+		user:set('first_name', userdata.first_name);
+		user:set('last_name', userdata.last_name);
+		user:set('nickname', userdata.first_name);
+		return userdata.first_name;
+	end,
+
+	GetR = function (userid) return DbData(userid):r() end,
+
+	Post = function (msg, other, user, rmsg)
+		if other.sendname then
+			rmsg.message = user:getName()..", "..rmsg.message;
+	 	end
 	end
-	
-	if not msg.chat_id then return true end
-	return false;
-end
-
-function _mod.Clear(msg, offset)
-	local text = string.sub(msg.body or '', offset);
-	while text:starts ' ' or text:starts ',' do text = string.sub(text, 2) end
-	msg.body = text;
-	return msg;
-end
-
-function _mod.SetupName(user)
-	local userdata = VK.users.get { user_ids = user.vkid }["response"][1];
-	user:set('first_name', userdata.first_name);
-	user:set('last_name', userdata.last_name);
-	user:set('nickname', userdata.first_name);
-	return userdata.first_name;
-end
-
-function _mod.GetR(userid)
-	return DbData(userid):r();
-end
-
-function _mod.Apply(msg, other, rmsg, user)
-	if msg.chat_id and other.sendname then rmsg.message = user:getName()..", "..rmsg.message end
-end
-
-return _mod;
+};
