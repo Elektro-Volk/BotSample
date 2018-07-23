@@ -23,6 +23,19 @@ return {
         include = 'moderator'
     },
 
+    moderator = {
+        screenname = 'Модератор',
+        ["right.kick"] = true,
+		["right.nick.other"] = true,
+		["right.otherinfo"] = true,
+		["right.ban"] = true,
+		["right.ban."] = true,
+		["right.ban.vip"] = true,
+		["right.razban"] = true,
+		["value.maxbantime"] = 86400,
+        include = 'vip'
+    },
+
     vip = {
         screenname = "VIP пользователь",
 		["right.nick"] = true,
