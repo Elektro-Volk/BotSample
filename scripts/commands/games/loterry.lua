@@ -28,7 +28,7 @@ function command.exe(msg, args, other, rmsg, user, count)
 	ca(count >= 10, "вы не можете ставить так мало бит");
 
 	other.sendname = true;
-	if math.math.random(100) > user:getValue 'lostchance' then
+	if math.random(100) > user:getValue 'lostchance' then
 		user:addMoneys(count, "Победа в лотерее");
 		return trand(command.win_messages);
 	else
