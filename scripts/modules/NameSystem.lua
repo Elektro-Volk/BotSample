@@ -17,6 +17,11 @@ return {
 			return;
 		end
 
+		if not DbData.FindTable(DbData.acctable) then
+			console.log("NameSystem", "Таблица %s не найдена.", DbData.acctable);
+			return;
+		end
+
 		DbData.FindColumnOrInstall(DbData.acctable, 'first_name', 'NameSystem', 'TEXT NOT NULL');
 		DbData.FindColumnOrInstall(DbData.acctable, 'last_name', 'NameSystem', 'TEXT NOT NULL');
 		DbData.FindColumnOrInstall(DbData.acctable, 'nickname', 'NameSystem', 'TEXT NOT NULL');
@@ -28,6 +33,7 @@ return {
 		DbData.RegFunc('r', function (self) return "[id"..self.vkid.."|"..self:getName().."]" end);
 
 		Bot.addCheck(NameSystem.IsMe);
+		Bot.addPre(NameSystem.CheckUsername);
 		Bot.addPost(NameSystem.Post);
 	end,
 
@@ -46,6 +52,10 @@ return {
 
 	Clear = function (msg)
 		while msg.text:starts ' ' or msg.text:starts ',' do msg.text = string.sub(msg.text, 2) end
+	end,
+
+	CheckUsername = function (msg, other, user)
+		if user.first_name == '' then NameSystem.SetupName(user) end
 	end,
 
 	SetupName = function (user)

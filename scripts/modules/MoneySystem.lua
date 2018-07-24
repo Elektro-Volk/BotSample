@@ -9,6 +9,11 @@ return {
 			return;
 		end
 
+		if not DbData.FindTable(DbData.acctable) then
+			console.log("MoneySystem", "Таблица %s не найдена.", DbData.acctable);
+			return;
+		end
+
 		DbData.FindColumnOrInstall(DbData.acctable, 'balance', 'MoneySystem', 'INT NOT NULL');
 		if MoneySystem.enable_history and not DbData.FindTable('history') then
 			console.log("MoneySystem", "Таблица history не найдена.");

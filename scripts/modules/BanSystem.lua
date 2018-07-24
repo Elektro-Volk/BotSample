@@ -12,6 +12,11 @@ return {
 			return;
 		end
 
+		if not DbData.FindTable(DbData.acctable) then
+			console.log("BanSystem", "Таблица %s не найдена.", DbData.acctable);
+			return;
+		end
+
 		if not DbData.FindColumn(DbData.acctable, 'ban') then
 			console.log("BanSystem", "Создаю поле ban в %s...", DbData.acctable);
 			DbData.mc ("ALTER TABLE `%s` ADD `ban` INT NOT NULL", DbData.acctable);

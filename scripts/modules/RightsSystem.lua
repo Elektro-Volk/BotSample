@@ -5,6 +5,11 @@ return {
 			return;
 		end
 
+		if not DbData.FindTable(DbData.acctable) then
+			console.log("RightsSystem", "Таблица %s не найдена.", DbData.acctable);
+			return;
+		end
+
 		DbData.FindColumnOrInstall(DbData.acctable, 'right', 'RightsSystem', 'TEXT NOT NULL');
 	end,
 

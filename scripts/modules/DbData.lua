@@ -40,6 +40,8 @@ local module = {
 	Connect = function(settings)
 		DbData.mc = mysql(settings.ip, settings.username, settings.password, settings.database);
 		DbData.mc("SET NAMES utf8mb4");
+		DbData.mc("SET @@GLOBAL.sql_mode= ''");
+		DbData.mc("SET @@SESSION.sql_mode= ''");
 		DbData.settings = settings;
 	end,
 
