@@ -4,7 +4,7 @@ function command.exe(msg, args, other, rmsg, user, target)
 	local count = tonumber(args[3]) or 1000;
 
 	user:checkMoneys(count);
-	ca (ca >= 5, "вы не можете ставить так мало яриков");
+	ca (count >= 5, "вы не можете ставить так мало яриков");
 	ca (target.vkid ~= user.vkid, "вы пытаетесь сделать некультурные вещи :/");
 
 	local qid = Invites.Invite(user, target, command.accept, count);
